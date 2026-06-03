@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Analytics Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 75%;
+            border-radius: 10px;
+            animation: slideRight 0.8s ease-out;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .stat-box img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-text {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .language-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .language-bar {
+            margin-bottom: 20px;
+        }
+
+        .language-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .lang-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .lang-percent {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .language-fill {
+            height: 12px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            animation: slideRight 0.8s ease-out;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideRight {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 GitHub Analytics Dashboard</h1>
+            <p>Complete Statistics & Repository Overview</p>
+        </div>
+
+        <!-- Main Stats Cards -->
+        <div class="dashboard">
+            <!-- Repositories Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=200&fit=crop" alt="Repositories" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">📦 Total Repositories</div>
+                    <div class="card-value">42</div>
+                    <div class="card-label">Active Projects</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Followers Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop" alt="Followers" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">👥 Followers</div>
+                    <div class="card-value">1.2K</div>
+                    <div class="card-label">Community Members</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pull Requests Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=400&h=200&fit=crop" alt="Pull Requests" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">🔀 Pull Requests</div>
+                    <div class="card-value">256</div>
+                    <div class="card-label">Merged & Open</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contributions Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=200&fit=crop" alt="Contributions" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">✨ Contributions</div>
+                    <div class="card-value">1,458</div>
+                    <div class="card-label">This Year</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 88%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stars Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=200&fit=crop" alt="Stars" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">⭐ Total Stars</div>
+                    <div class="card-value">3.8K</div>
+                    <div class="card-label">Repository Stars</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 76%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issues Card -->
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f70504504?w=400&h=200&fit=crop" alt="Issues" class="card-image">
+                <div class="card-content">
+                    <div class="card-title">🐛 Issues</div>
+                    <div class="card-value">42</div>
+                    <div class="card-label">Open & Closed</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 35%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <img src="https://img.icons8.com/color/96/000000/code.png" alt="Code">
+                <div class="stat-number">28</div>
+                <div class="stat-text">Languages Used</div>
+            </div>
+            <div class="stat-box">
+                <img src="https://img.icons8.com/color/96/000000/project.png" alt="Projects">
+                <div class="stat-number">15</div>
+                <div class="stat-text">Active Projects</div>
+            </div>
+            <div class="stat-box">
+                <img src="https://img.icons8.com/color/96/000000/organization.png" alt="Organizations">
+                <div class="stat-number">5</div>
+                <div class="stat-text">Organizations</div>
+            </div>
+        </div>
+
+        <!-- Programming Languages Section -->
+        <div class="language-section">
+            <div class="section-title">
+                <img src="https://img.icons8.com/color/32/000000/code.png" alt="Languages">
+                Top Programming Languages
+            </div>
+
+            <div class="language-bar">
+                <div class="language-label">
+                    <span class="lang-name">Dart</span>
+                    <span class="lang-percent">28%</span>
+                </div>
+                <div class="language-fill">
+                    <div class="fill" style="width: 28%;"></div>
+                </div>
+            </div>
+
+            <div class="language-bar">
+                <div class="language-label">
+                    <span class="lang-name">PHP</span>
+                    <span class="lang-percent">24%</span>
+                </div>
+                <div class="language-fill">
+                    <div class="fill" style="width: 24%;"></div>
+                </div>
+            </div>
+
+            <div class="language-bar">
+                <div class="language-label">
+                    <span class="lang-name">JavaScript</span>
+                    <span class="lang-percent">18%</span>
+                </div>
+                <div class="language-fill">
+                    <div class="fill" style="width: 18%;"></div>
+                </div>
+            </div>
+
+            <div class="language-bar">
+                <div class="language-label">
+                    <span class="lang-name">Python</span>
+                    <span class="lang-percent">15%</span>
+                </div>
+                <div class="language-fill">
+                    <div class="fill" style="width: 15%;"></div>
+                </div>
+            </div>
+
+            <div class="language-bar">
+                <div class="language-label">
+                    <span class="lang-name">Others</span>
+                    <span class="lang-percent">15%</span>
+                </div>
+                <div class="language-fill">
+                    <div class="fill" style="width: 15%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🎯 GitHub Analytics Dashboard | Updated: 2026</p>
+            <p>© 2024-2026 is2024 | All Rights Reserved</p>
+        </div>
+    </div>
+</body>
+</html>
